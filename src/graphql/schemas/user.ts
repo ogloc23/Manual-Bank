@@ -24,6 +24,9 @@ export const userTypeDefs = `#graphql
     totalWithdrawals: Float
     totalTransfers: Float
     accountStatus: String
+    emailNotifications: Boolean
+    smsNotifications: Boolean
+    pushNotifications: Boolean
     role: String
     kycStatus: String
     createdAt: String

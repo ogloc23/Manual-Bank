@@ -10,11 +10,13 @@ import { verificationTypeDefs } from "./verification";
 import { notificationTypeDefs } from "./notification";
 import { activityLogTypeDefs } from "./activityLog";
 import { adminTypeDefs } from "./admin";
+import { profileTypeDefs } from "./profile";
 
 export const typeDefs = [
   authTypeDefs,
   adminTypeDefs,
   userTypeDefs,
+  profileTypeDefs,
   transactionTypeDefs,
   depositTypeDefs,
   wireTransferTypeDefs,
