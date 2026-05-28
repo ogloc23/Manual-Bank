@@ -9,9 +9,11 @@ import { billPaymentTypeDefs } from "./billPayment";
 import { verificationTypeDefs } from "./verification";
 import { notificationTypeDefs } from "./notification";
 import { activityLogTypeDefs } from "./activityLog";
+import { adminTypeDefs } from "./admin";
 
 export const typeDefs = [
   authTypeDefs,
+  adminTypeDefs,
   userTypeDefs,
   transactionTypeDefs,
   depositTypeDefs,
