@@ -2,284 +2,126 @@ import TransactionRepository from "../repositories/transaction.repository";
 import AdminRepository from "../repositories/admin.repository";
 import { toObjectId } from "../utils/toObjectId";
 
-import {
-  CreateDepositInput,
-  CreateWireTransferInput,
-} from "../types/transaction.types";
+const transactionRepository = new TransactionRepository();
 
-const transactionRepository =
-  new TransactionRepository();
+const userRepository = new AdminRepository();
 
-const userRepository =
-  new AdminRepository();
+const generateTransactionId = (): string => {
+  return `TNX-${Date.now()}`;
+};
 
-const generateTransactionId =
-  (): string => {
-    return `TNX-${Date.now()}`;
-  };
+const generateReference = (): string => {
+  return `REF-${Date.now()}`;
+};
 
-const generateReference =
-  (): string => {
-    return `REF-${Date.now()}`;
-  };
+export const getTransactions = async () => {
+  return transactionRepository.findMany({});
+};
 
-export const createDeposit =
-  async (
-    userId: string,
-    input: CreateDepositInput,
-  ) => {
-    const transaction =
-      await transactionRepository.create({
-        userId: toObjectId(userId),
+export const getMyTransactions = async (userId: string) => {
+  return transactionRepository.findMany({
+    userId,
+  });
+};
 
-        transactionId:
-          generateTransactionId(),
+export const getTransaction = async (transactionId: string) => {
+  const transaction = await transactionRepository.findOne({
+    transactionId,
+  });
 
-        transactionType:
-          "DEPOSIT",
+  if (!transaction) {
+    throw new Error("Transaction not found");
+  }
 
-        amount: input.amount,
+  return transaction;
+};
 
-        currency: "USD",
+export const approveTransaction = async (
+  transactionId: string,
+  adminId: string,
+) => {
+  const transaction = await transactionRepository.findOne({
+    transactionId,
+  });
 
-        reference:
-          generateReference(),
+  if (!transaction) {
+    throw new Error("Transaction not found");
+  }
 
-        status: "PENDING",
+  if (transaction.status !== "PENDING") {
+    throw new Error("Transaction already processed");
+  }
 
-        direction: "CREDIT",
+  const updatedTransaction = await transactionRepository.update(
+    {
+      transactionId,
+    },
+    {
+      status: "COMPLETED",
 
-        proofOfPayment:
-          input.proofOfPayment,
+      processedBy: toObjectId(adminId),
 
-        paymentLinkUsed:
-          input.paymentLinkUsed,
-      });
+      processedAt: new Date(),
+    },
+  );
 
-    return transaction;
-  };
-
-export const createWireTransfer =
-  async (
-    userId: string,
-    input: CreateWireTransferInput,
-  ) => {
-    const user =
-      await userRepository.findOne({
-        _id: userId,
-      });
-
-    if (!user) {
-      throw new Error(
-        "User not found",
-      );
-    }
-
-    if (
-      user.availableBalance <
-      input.amount
-    ) {
-      throw new Error(
-        "Insufficient balance",
-      );
-    }
-
-    const transaction =
-      await transactionRepository.create({
-        userId: toObjectId(userId),
-
-        transactionId:
-          generateTransactionId(),
-
-        transactionType:
-          "WIRE_TRANSFER",
-
-        amount: input.amount,
-
-        currency:
-          user.currencyProtocol,
-
-        reference:
-          generateReference(),
-
-        status: "PENDING",
-
-        direction: "DEBIT",
-
-        recipientName:
-          input.recipientName,
-
-        recipientBank:
-          input.recipientBank,
-
-        recipientAccountNumber:
-          input.recipientAccountNumber,
-
-        description:
-          input.description,
-      });
-
-    return transaction;
-  };
-
-export const getTransactions =
-  async () => {
-    return transactionRepository.findMany(
-      {},
-    );
-  };
-
-export const getMyTransactions =
-  async (
-    userId: string,
-  ) => {
-    return transactionRepository.findMany(
+  if (transaction.transactionType === "DEPOSIT") {
+    await userRepository.update(
       {
-        userId,
-      },
-    );
-  };
-
-export const getTransaction =
-  async (
-    transactionId: string,
-  ) => {
-    const transaction =
-      await transactionRepository.findOne(
-        {
-          transactionId,
-        },
-      );
-
-    if (!transaction) {
-      throw new Error(
-        "Transaction not found",
-      );
-    }
-
-    return transaction;
-  };
-
-export const approveTransaction =
-  async (
-    transactionId: string,
-    adminId: string,
-  ) => {
-    const transaction =
-      await transactionRepository.findOne(
-        {
-          transactionId,
-        },
-      );
-
-    if (!transaction) {
-      throw new Error(
-        "Transaction not found",
-      );
-    }
-
-    if (
-      transaction.status !==
-      "PENDING"
-    ) {
-      throw new Error(
-        "Transaction already processed",
-      );
-    }
-
-    const updatedTransaction =
-      await transactionRepository.update(
-        {
-          transactionId,
-        },
-        {
-          status: "COMPLETED",
-
-          processedBy:
-            toObjectId(adminId),
-
-          processedAt:
-            new Date(),
-        },
-      );
-
-    if (
-      transaction.transactionType ===
-      "DEPOSIT"
-    ) {
-      await userRepository.update(
-        {
-          _id:
-            transaction.userId,
-        },
-        {
-          $inc: {
-            accountBalance:
-              transaction.amount,
-
-            availableBalance:
-              transaction.amount,
-
-            totalDeposits:
-              transaction.amount,
-          },
-        },
-      );
-    }
-
-    if (
-      transaction.transactionType ===
-      "WIRE_TRANSFER"
-    ) {
-      await userRepository.update(
-        {
-          _id:
-            transaction.userId,
-        },
-        {
-          $inc: {
-            accountBalance:
-              -transaction.amount,
-
-            availableBalance:
-              -transaction.amount,
-
-            totalTransfers:
-              transaction.amount,
-          },
-        },
-      );
-    }
-
-    return updatedTransaction;
-  };
-
-export const rejectTransaction =
-  async (
-    transactionId: string,
-    remarks?: string,
-  ) => {
-    const transaction =
-      await transactionRepository.findOne(
-        {
-          transactionId,
-        },
-      );
-
-    if (!transaction) {
-      throw new Error(
-        "Transaction not found",
-      );
-    }
-
-    return transactionRepository.update(
-      {
-        transactionId,
+        _id: transaction.userId,
       },
       {
-        status: "REJECTED",
+        $inc: {
+          accountBalance: transaction.amount,
 
-        remarks,
+          availableBalance: transaction.amount,
+
+          totalDeposits: transaction.amount,
+        },
       },
     );
-  };
+  }
+
+  if (transaction.transactionType === "WIRE_TRANSFER") {
+    await userRepository.update(
+      {
+        _id: transaction.userId,
+      },
+      {
+        $inc: {
+          accountBalance: -transaction.amount,
+
+          availableBalance: -transaction.amount,
+
+          totalTransfers: transaction.amount,
+        },
+      },
+    );
+  }
+
+  return updatedTransaction;
+};
+
+export const rejectTransaction = async (
+  transactionId: string,
+  remarks?: string,
+) => {
+  const transaction = await transactionRepository.findOne({
+    transactionId,
+  });
+
+  if (!transaction) {
+    throw new Error("Transaction not found");
+  }
+
+  return transactionRepository.update(
+    {
+      transactionId,
+    },
+    {
+      status: "REJECTED",
+
+      remarks,
+    },
+  );
+};

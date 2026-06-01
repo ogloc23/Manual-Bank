@@ -1,5 +1,4 @@
 import {
-  createWireTransfer,
   getTransactions,
   getMyTransactions,
   getTransaction,
@@ -11,10 +10,6 @@ import {
   requireAuth,
   requireAdmin,
 } from "../../utils/guards";
-
-import {
-  CreateWireTransferInput,
-} from "../../types/transaction.types";
 
 interface GraphQLContext {
   user?: {
@@ -65,25 +60,6 @@ export const transactionResolvers =
     },
 
     Mutation: {
-      createWireTransfer:
-        async (
-          _: unknown,
-          args: {
-            input: CreateWireTransferInput;
-          },
-          context: GraphQLContext,
-        ) => {
-          const user =
-            requireAuth(
-              context,
-            );
-
-          return createWireTransfer(
-            user.id,
-            args.input,
-          );
-        },
-
       approveTransaction:
         async (
           _: unknown,
