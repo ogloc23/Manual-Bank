@@ -74,26 +74,6 @@ export const transactionTypeDefs = `#graphql
     updatedAt: String
   }
 
-  input CreateDepositInput {
-    amount: Float!
-
-    proofOfPayment: String
-
-    paymentLinkUsed: String
-  }
-
-  input CreateWireTransferInput {
-    amount: Float!
-
-    recipientName: String!
-
-    recipientBank: String!
-
-    recipientAccountNumber: String!
-
-    description: String
-  }
-
   extend type Query {
     transactions: [Transaction!]!
 

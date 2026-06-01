@@ -1,6 +1,7 @@
 import TransactionRepository from "../repositories/transaction.repository";
 import AdminRepository from "../repositories/admin.repository";
 import { toObjectId } from "../utils/toObjectId";
+import { logActivity } from "./activityLog.service";
 
 const transactionRepository = new TransactionRepository();
 
@@ -58,9 +59,7 @@ export const approveTransaction = async (
     },
     {
       status: "COMPLETED",
-
       processedBy: toObjectId(adminId),
-
       processedAt: new Date(),
     },
   );
@@ -72,10 +71,9 @@ export const approveTransaction = async (
       },
       {
         $inc: {
-          accountBalance: transaction.amount,
-
-          availableBalance: transaction.amount,
-
+          primaryBalance: transaction.amount,
+          secondaryBalance: transaction.amount,
+          tertiaryBalance: -transaction.amount,
           totalDeposits: transaction.amount,
         },
       },
@@ -89,22 +87,52 @@ export const approveTransaction = async (
       },
       {
         $inc: {
-          accountBalance: -transaction.amount,
-
-          availableBalance: -transaction.amount,
-
+          primaryBalance: -transaction.amount,
+          tertiaryBalance: -transaction.amount,
           totalTransfers: transaction.amount,
         },
       },
     );
   }
 
+  if (
+    transaction.transactionType === "CHARITY" ||
+    transaction.transactionType === "BILL_PAYMENT"
+  ) {
+    const amountAdjustment =
+      transaction.transactionType === "CHARITY" ||
+      transaction.transactionType === "BILL_PAYMENT"
+        ? -transaction.amount
+        : 0;
+
+    await userRepository.update(
+      {
+        _id: transaction.userId,
+      },
+      {
+        $inc: {
+          primaryBalance: amountAdjustment,
+          tertiaryBalance: -transaction.amount,
+          totalWithdrawals: transaction.amount,
+        },
+      },
+    );
+  }
+
+  await logActivity(
+    adminId,
+    `Approved transaction ${transaction.transactionId}`,
+    `status=PENDING`,
+    `status=COMPLETED`,
+  );
+
   return updatedTransaction;
 };
 
 export const rejectTransaction = async (
   transactionId: string,
-  remarks?: string,
+  remarks: string | undefined,
+  adminId: string,
 ) => {
   const transaction = await transactionRepository.findOne({
     transactionId,
@@ -114,14 +142,22 @@ export const rejectTransaction = async (
     throw new Error("Transaction not found");
   }
 
-  return transactionRepository.update(
+  const updatedTransaction = await transactionRepository.update(
     {
       transactionId,
     },
     {
       status: "REJECTED",
-
       remarks,
     },
   );
+
+  await logActivity(
+    adminId,
+    `Rejected transaction ${transaction.transactionId}`,
+    `status=PENDING`,
+    `status=REJECTED, remarks=${remarks || "none"}`,
+  );
+
+  return updatedTransaction;
 };

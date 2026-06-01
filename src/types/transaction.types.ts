@@ -1,6 +1,8 @@
 export interface CreateDepositInput {
   amount: number;
 
+  paymentMethod?: string;
+
   proofOfPayment?: string;
 
   paymentLinkUsed?: string;
@@ -9,13 +11,15 @@ export interface CreateDepositInput {
 export interface CreateWireTransferInput {
   amount: number;
 
-  recipientName: string;
+  beneficiaryName: string;
 
-  recipientBank: string;
+  beneficiaryBank: string;
 
-  recipientAccountNumber: string;
+  accountNumber: string;
 
-  description?: string;
+  swiftCode?: string;
+
+  reason?: string;
 }
 
 export interface ApproveTransactionInput {

@@ -57,11 +57,11 @@ const seedAdmin = async (): Promise<void> => {
       accountNumber: "0000000001",
 
       // Wallet Figures
-      accountBalance: 0,
+      primaryBalance: 0,
 
-      availableBalance: 0,
+      secondaryBalance: 0,
 
-      pendingBalance: 0,
+      tertiaryBalance: 0,
 
       totalDeposits: 0,
 

@@ -6,10 +6,7 @@ import {
   rejectTransaction,
 } from "../../services/transaction.service";
 
-import {
-  requireAuth,
-  requireAdmin,
-} from "../../utils/guards";
+import { requireAuth, requireAdmin } from "../../utils/guards";
 
 interface GraphQLContext {
   user?: {
@@ -18,82 +15,61 @@ interface GraphQLContext {
   };
 }
 
-export const transactionResolvers =
-  {
-    Query: {
-      transactions: async (
-        _: unknown,
-        __: unknown,
-        context: GraphQLContext,
-      ) => {
-        requireAdmin(context);
+export const transactionResolvers = {
+  Query: {
+    transactions: async (_: unknown, __: unknown, context: GraphQLContext) => {
+      requireAdmin(context);
 
-        return getTransactions();
-      },
-
-      myTransactions: async (
-        _: unknown,
-        __: unknown,
-        context: GraphQLContext,
-      ) => {
-        const user =
-          requireAuth(context);
-
-        return getMyTransactions(
-          user.id,
-        );
-      },
-
-      getTransaction: async (
-        _: unknown,
-        args: {
-          transactionId: string;
-        },
-        context: GraphQLContext,
-      ) => {
-        requireAuth(context);
-
-        return getTransaction(
-          args.transactionId,
-        );
-      },
+      return getTransactions();
     },
 
-    Mutation: {
-      approveTransaction:
-        async (
-          _: unknown,
-          args: {
-            transactionId: string;
-          },
-          context: GraphQLContext,
-        ) => {
-          const admin =
-            requireAdmin(
-              context,
-            );
+    myTransactions: async (
+      _: unknown,
+      __: unknown,
+      context: GraphQLContext,
+    ) => {
+      const user = requireAuth(context);
 
-          return approveTransaction(
-            args.transactionId,
-            admin.id,
-          );
-        },
-
-      rejectTransaction:
-        async (
-          _: unknown,
-          args: {
-            transactionId: string;
-            remarks?: string;
-          },
-          context: GraphQLContext,
-        ) => {
-          requireAdmin(context);
-
-          return rejectTransaction(
-            args.transactionId,
-            args.remarks,
-          );
-        },
+      return getMyTransactions(user.id);
     },
-  };
+
+    getTransaction: async (
+      _: unknown,
+      args: {
+        transactionId: string;
+      },
+      context: GraphQLContext,
+    ) => {
+      requireAuth(context);
+
+      return getTransaction(args.transactionId);
+    },
+  },
+
+  Mutation: {
+    approveTransaction: async (
+      _: unknown,
+      args: {
+        transactionId: string;
+      },
+      context: GraphQLContext,
+    ) => {
+      const admin = requireAdmin(context);
+
+      return approveTransaction(args.transactionId, admin.id);
+    },
+
+    rejectTransaction: async (
+      _: unknown,
+      args: {
+        transactionId: string;
+        remarks?: string;
+      },
+      context: GraphQLContext,
+    ) => {
+      const admin = requireAdmin(context);
+
+      return rejectTransaction(args.transactionId, args.remarks, admin.id);
+    },
+  },
+};

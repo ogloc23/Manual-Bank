@@ -17,9 +17,15 @@ export const adminTypeDefs = `#graphql
     kycStatus: String!
   }
 
+  enum BalanceType {
+    PRIMARY_BALANCE
+    SECONDARY_BALANCE
+    TERTIARY_BALANCE
+  }
+
   input BalanceUpdateInput {
     userId: ID!
-
+    balanceType: BalanceType!
     amount: Float!
   }
 
@@ -35,6 +41,33 @@ export const adminTypeDefs = `#graphql
     password: String!
 
     phoneNumber: String!
+  }
+
+  input ApproveDepositInput {
+    depositId: ID!
+  }
+
+  input RejectDepositInput {
+    depositId: ID!
+    remarks: String
+  }
+
+  input ApproveWireTransferInput {
+    wireTransferId: ID!
+  }
+
+  input RejectWireTransferInput {
+    wireTransferId: ID!
+    remarks: String
+  }
+
+  input ApproveVerificationInput {
+    verificationId: ID!
+  }
+
+  input RejectVerificationInput {
+    verificationId: ID!
+    remarks: String
   }
 
   extend type Query {
@@ -67,5 +100,59 @@ export const adminTypeDefs = `#graphql
     deleteUser(
       userId: ID!
     ): AdminActionResponse
+
+    approveLoan(
+      loanId: ID!
+    ): Loan
+
+    rejectLoan(
+      loanId: ID!
+      remarks: String
+    ): Loan
+
+    approveCharity(
+      charityId: ID!
+    ): Charity
+
+    rejectCharity(
+      charityId: ID!
+      remarks: String
+    ): Charity
+
+    approveBillPayment(
+      billPaymentId: ID!
+    ): BillPayment
+
+    rejectBillPayment(
+      billPaymentId: ID!
+      remarks: String
+    ): BillPayment
+
+    approveDeposit(
+      depositId: ID!
+    ): Deposit
+
+    rejectDeposit(
+      depositId: ID!
+      remarks: String
+    ): Deposit
+
+    approveWireTransfer(
+      wireTransferId: ID!
+    ): WireTransfer
+
+    rejectWireTransfer(
+      wireTransferId: ID!
+      remarks: String
+    ): WireTransfer
+
+    approveVerification(
+      verificationId: ID!
+    ): Verification
+
+    rejectVerification(
+      verificationId: ID!
+      remarks: String
+    ): Verification
   }
 `;

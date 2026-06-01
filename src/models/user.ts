@@ -96,17 +96,17 @@ const UserSchema = new mongoose.Schema(
     },
 
     // Wallet Figures
-    accountBalance: {
+    primaryBalance: {
       type: Number,
       default: 0,
     },
 
-    availableBalance: {
+    secondaryBalance: {
       type: Number,
       default: 0,
     },
 
-    pendingBalance: {
+    tertiaryBalance: {
       type: Number,
       default: 0,
     },

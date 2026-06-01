@@ -17,9 +17,9 @@ export const userTypeDefs = `#graphql
     currencyProtocol: String
     accountTier: String
     accountNumber: String
-    accountBalance: Float
-    availableBalance: Float
-    pendingBalance: Float
+    primaryBalance: Float
+    secondaryBalance: Float
+    tertiaryBalance: Float
     totalDeposits: Float
     totalWithdrawals: Float
     totalTransfers: Float
