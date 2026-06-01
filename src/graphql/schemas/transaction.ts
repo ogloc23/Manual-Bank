@@ -105,9 +105,6 @@ export const transactionTypeDefs = `#graphql
   }
 
   extend type Mutation {
-    createDeposit(
-      input: CreateDepositInput!
-    ): Transaction
 
     createWireTransfer(
       input: CreateWireTransferInput!

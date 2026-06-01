@@ -1,5 +1,4 @@
 import {
-  createDeposit,
   createWireTransfer,
   getTransactions,
   getMyTransactions,
@@ -14,7 +13,6 @@ import {
 } from "../../utils/guards";
 
 import {
-  CreateDepositInput,
   CreateWireTransferInput,
 } from "../../types/transaction.types";
 
@@ -67,22 +65,6 @@ export const transactionResolvers =
     },
 
     Mutation: {
-      createDeposit: async (
-        _: unknown,
-        args: {
-          input: CreateDepositInput;
-        },
-        context: GraphQLContext,
-      ) => {
-        const user =
-          requireAuth(context);
-
-        return createDeposit(
-          user.id,
-          args.input,
-        );
-      },
-
       createWireTransfer:
         async (
           _: unknown,
