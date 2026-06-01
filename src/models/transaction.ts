@@ -8,6 +8,12 @@ const TransactionSchema = new mongoose.Schema(
       required: true,
     },
 
+    transactionId: {
+      type: String,
+      unique: true,
+      required: true,
+    },
+
     transactionType: {
       type: String,
       enum: [
@@ -41,13 +47,7 @@ const TransactionSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "PENDING",
-        "PROCESSING",
-        "COMPLETED",
-        "FAILED",
-        "REJECTED",
-      ],
+      enum: ["PENDING", "PROCESSING", "COMPLETED", "FAILED", "REJECTED"],
       default: "PENDING",
     },
 
@@ -58,6 +58,45 @@ const TransactionSchema = new mongoose.Schema(
     },
 
     description: {
+      type: String,
+      default: "",
+    },
+
+    processedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    processedAt: {
+      type: Date,
+    },
+
+    fee: {
+      type: Number,
+      default: 0,
+    },
+
+    recipientName: {
+      type: String,
+      default: "",
+    },
+
+    recipientBank: {
+      type: String,
+      default: "",
+    },
+
+    recipientAccountNumber: {
+      type: String,
+      default: "",
+    },
+
+    proofOfPayment: {
+      type: String,
+      default: "",
+    },
+
+    paymentLinkUsed: {
       type: String,
       default: "",
     },
