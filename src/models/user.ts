@@ -111,6 +111,11 @@ const UserSchema = new mongoose.Schema(
       default: 0,
     },
 
+    totalBalance: {
+      type: Number,
+      default: 0,
+    },
+
     totalDeposits: {
       type: Number,
       default: 0,

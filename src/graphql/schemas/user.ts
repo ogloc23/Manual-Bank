@@ -20,6 +20,7 @@ export const userTypeDefs = `#graphql
     primaryBalance: Float
     secondaryBalance: Float
     tertiaryBalance: Float
+    totalBalance: Float
     totalDeposits: Float
     totalWithdrawals: Float
     totalTransfers: Float

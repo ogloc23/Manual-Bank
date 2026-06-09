@@ -141,6 +141,7 @@ export const creditUserBalance = async (
     {
       $inc: {
         [balanceField]: input.amount,
+        totalBalance: input.amount,
       },
     },
   );
@@ -180,6 +181,7 @@ export const debitUserBalance = async (
     {
       $inc: {
         [balanceField]: -input.amount,
+        totalBalance: -input.amount,
       },
     },
   );
@@ -222,6 +224,7 @@ export const approveLoan = async (loanId: string, adminId: string) => {
       $inc: {
         primaryBalance: loan.loanAmount,
         secondaryBalance: loan.loanAmount,
+        totalBalance: loan.loanAmount * 2,
       },
     },
   );
@@ -296,6 +299,7 @@ export const approveCharity = async (charityId: string, adminId: string) => {
       $inc: {
         primaryBalance: -charity.amount,
         tertiaryBalance: -charity.amount,
+        totalBalance: -charity.amount * 2,
         totalWithdrawals: charity.amount,
       },
     },
@@ -408,6 +412,7 @@ export const approveBillPayment = async (
       $inc: {
         primaryBalance: -billPayment.amount,
         tertiaryBalance: -billPayment.amount,
+        totalBalance: -billPayment.amount * 2,
         totalWithdrawals: billPayment.amount,
       },
     },
@@ -514,6 +519,7 @@ export const approveDeposit = async (depositId: string, adminId: string) => {
         primaryBalance: deposit.amount,
         secondaryBalance: deposit.amount,
         tertiaryBalance: -deposit.amount,
+        totalBalance: deposit.amount,
         totalDeposits: deposit.amount,
       },
     },
@@ -571,6 +577,7 @@ export const rejectDeposit = async (
     {
       $inc: {
         tertiaryBalance: -deposit.amount,
+        totalBalance: -deposit.amount,
       },
     },
   );
@@ -628,6 +635,7 @@ export const approveWireTransfer = async (
       $inc: {
         primaryBalance: -wireTransfer.amount,
         tertiaryBalance: -wireTransfer.amount,
+        totalBalance: -wireTransfer.amount * 2,
       },
     },
   );

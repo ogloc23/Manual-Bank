@@ -63,6 +63,8 @@ const seedAdmin = async (): Promise<void> => {
 
       tertiaryBalance: 0,
 
+      totalBalance: 0,
+
       totalDeposits: 0,
 
       totalWithdrawals: 0,

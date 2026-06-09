@@ -74,6 +74,7 @@ export const approveTransaction = async (
           primaryBalance: transaction.amount,
           secondaryBalance: transaction.amount,
           tertiaryBalance: -transaction.amount,
+          totalBalance: transaction.amount,
           totalDeposits: transaction.amount,
         },
       },
@@ -89,6 +90,7 @@ export const approveTransaction = async (
         $inc: {
           primaryBalance: -transaction.amount,
           tertiaryBalance: -transaction.amount,
+          totalBalance: -transaction.amount * 2,
           totalTransfers: transaction.amount,
         },
       },
@@ -113,6 +115,7 @@ export const approveTransaction = async (
         $inc: {
           primaryBalance: amountAdjustment,
           tertiaryBalance: -transaction.amount,
+          totalBalance: amountAdjustment - transaction.amount,
           totalWithdrawals: transaction.amount,
         },
       },
