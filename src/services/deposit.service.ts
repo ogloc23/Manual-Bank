@@ -34,15 +34,6 @@ export const createDeposit = async (
     status: "PENDING",
   });
 
-  await userRepository.update(
-    { _id: userId },
-    {
-      $inc: {
-        tertiaryBalance: input.amount,
-      },
-    },
-  );
-
   await createNotification(
     userId,
     "Deposit Submitted",

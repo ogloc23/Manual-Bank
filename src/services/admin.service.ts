@@ -8,6 +8,7 @@ import Verification from "../models/verification";
 import WireTransfer from "../models/wireTransfer";
 import { hashValue } from "../utils/auth";
 import { generateAccountNumber } from "../utils/generateAccountNumber";
+import { toObjectId } from "../utils/toObjectId";
 import { createNotification } from "./notification.service";
 import { logActivity } from "./activityLog.service";
 import {
@@ -508,7 +509,10 @@ export const approveDeposit = async (depositId: string, adminId: string) => {
 
   const updatedDeposit = await Deposit.findByIdAndUpdate(
     depositId,
-    { status: "APPROVED" },
+    {
+      status: "APPROVED",
+      approvedBy: toObjectId(adminId),
+    },
     { new: true },
   );
 
@@ -570,16 +574,6 @@ export const rejectDeposit = async (
     depositId,
     { status: "DECLINED" },
     { new: true },
-  );
-
-  await adminRepository.update(
-    { _id: deposit.userId },
-    {
-      $inc: {
-        tertiaryBalance: -deposit.amount,
-        totalBalance: -deposit.amount,
-      },
-    },
   );
 
   await Transaction.findOneAndUpdate(
