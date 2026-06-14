@@ -39,6 +39,16 @@ const resolvers = {
     ...charityResolvers.Mutation,
     ...billPaymentResolvers.Mutation,
   },
+
+  User: {
+    totalBalance: (user: any) => {
+      return (
+        (user.primaryBalance || 0) +
+        (user.secondaryBalance || 0) +
+        (user.tertiaryBalance || 0)
+      );
+    },
+  },
 };
 
 export default resolvers;
