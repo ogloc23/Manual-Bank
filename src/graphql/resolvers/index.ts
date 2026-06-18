@@ -9,6 +9,7 @@ import { notificationResolvers } from "./notification.resolver";
 import { loanResolvers } from "./loan.resolver";
 import { charityResolvers } from "./charity.resolver";
 import { billPaymentResolvers } from "./billPayment.resolver";
+import { grantResolvers } from "./grant.resolver";
 import { activityLogResolvers } from "./activityLog.resolver";
 
 const resolvers = {
@@ -24,6 +25,7 @@ const resolvers = {
     ...loanResolvers.Query,
     ...charityResolvers.Query,
     ...billPaymentResolvers.Query,
+    ...grantResolvers.Query,
     ...activityLogResolvers.Query,
   },
 
@@ -38,16 +40,7 @@ const resolvers = {
     ...loanResolvers.Mutation,
     ...charityResolvers.Mutation,
     ...billPaymentResolvers.Mutation,
-  },
-
-  User: {
-    totalBalance: (user: any) => {
-      return (
-        (user.primaryBalance || 0) +
-        (user.secondaryBalance || 0) +
-        (user.tertiaryBalance || 0)
-      );
-    },
+    ...grantResolvers.Mutation,
   },
 };
 

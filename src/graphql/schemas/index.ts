@@ -11,6 +11,7 @@ import { notificationTypeDefs } from "./notification";
 import { activityLogTypeDefs } from "./activityLog";
 import { adminTypeDefs } from "./admin";
 import { profileTypeDefs } from "./profile";
+import { grantTypeDefs } from "./grant";
 
 export const typeDefs = [
   authTypeDefs,
@@ -26,4 +27,5 @@ export const typeDefs = [
   verificationTypeDefs,
   notificationTypeDefs,
   activityLogTypeDefs,
+  grantTypeDefs,
 ];
