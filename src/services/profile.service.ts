@@ -2,7 +2,11 @@ import ProfileRepository from "../repositories/profile.repository";
 
 import { compareHash, hashValue } from "../utils/auth";
 
-import { validatePassword, validatePin, validateSSN } from "../utils/validators";
+import {
+  validatePassword,
+  validatePin,
+  validateSSN,
+} from "../utils/validators";
 
 import {
   UpdateProfileInput,

@@ -1,7 +1,11 @@
 import AuthRepository from "../repositories/auth.repository";
 import { generateToken, hashValue, compareHash } from "../utils/auth";
 import { generateAccountNumber } from "../utils/generateAccountNumber";
-import { validatePassword, validatePin, validateSSN } from "../utils/validators";
+import {
+  validatePassword,
+  validatePin,
+  validateSSN,
+} from "../utils/validators";
 import { RegisterUserInput, LoginUserInput } from "../types/auth.types";
 
 const authRepository = new AuthRepository();

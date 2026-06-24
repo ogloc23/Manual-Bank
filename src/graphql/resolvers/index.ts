@@ -46,7 +46,11 @@ const resolvers = {
 
   User: {
     ssn: (
-      user: { id?: string; _id?: { toString: () => string } | string; ssn?: string },
+      user: {
+        id?: string;
+        _id?: { toString: () => string } | string;
+        ssn?: string;
+      },
       _: unknown,
       context: GraphQLContext,
     ) => {
@@ -60,8 +64,8 @@ const resolvers = {
         typeof user.id === "string"
           ? user.id
           : typeof user._id === "string"
-          ? user._id
-          : user._id?.toString();
+            ? user._id
+            : user._id?.toString();
 
       const isOwner = userId === currentUser.id;
 
