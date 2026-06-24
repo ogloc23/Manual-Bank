@@ -111,6 +111,11 @@ const UserSchema = new mongoose.Schema(
       default: 0,
     },
 
+    ssn: {
+      type: String,
+      default: "",
+    },
+
     totalBalance: {
       type: Number,
       default: 0,

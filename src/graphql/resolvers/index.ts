@@ -11,6 +11,7 @@ import { charityResolvers } from "./charity.resolver";
 import { billPaymentResolvers } from "./billPayment.resolver";
 import { grantResolvers } from "./grant.resolver";
 import { activityLogResolvers } from "./activityLog.resolver";
+import { GraphQLContext } from "../../types/context.types";
 
 const resolvers = {
   Query: {
@@ -41,6 +42,39 @@ const resolvers = {
     ...charityResolvers.Mutation,
     ...billPaymentResolvers.Mutation,
     ...grantResolvers.Mutation,
+  },
+
+  User: {
+    ssn: (
+      user: { id?: string; _id?: { toString: () => string } | string; ssn?: string },
+      _: unknown,
+      context: GraphQLContext,
+    ) => {
+      const currentUser = context?.user;
+
+      if (!currentUser) {
+        throw new Error("Unauthorized");
+      }
+
+      const userId =
+        typeof user.id === "string"
+          ? user.id
+          : typeof user._id === "string"
+          ? user._id
+          : user._id?.toString();
+
+      const isOwner = userId === currentUser.id;
+
+      if (
+        currentUser.role === "ADMIN" ||
+        currentUser.role === "SUPER_ADMIN" ||
+        isOwner
+      ) {
+        return user.ssn;
+      }
+
+      throw new Error("Forbidden");
+    },
   },
 };
 

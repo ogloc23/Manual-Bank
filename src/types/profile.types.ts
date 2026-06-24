@@ -20,6 +20,8 @@ export interface UpdateProfileInput {
   dateOfBirth?: string;
 
   profileImage?: string;
+
+  ssn?: string;
 }
 
 export interface ChangePasswordInput {

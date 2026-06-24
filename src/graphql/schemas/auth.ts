@@ -17,6 +17,7 @@ export const authTypeDefs = `#graphql
     stateProvince: String
     currencyProtocol: String
     accountTier: String
+    ssn: String
     password: String!
     confirmPassword: String!
     accessPin: String!

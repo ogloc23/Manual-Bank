@@ -22,6 +22,8 @@ export const profileTypeDefs = `#graphql
     dateOfBirth: String
 
     profileImage: String
+
+    ssn: String
   }
 
   input ChangePasswordInput {

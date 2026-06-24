@@ -6,6 +6,7 @@ export const userTypeDefs = `#graphql
     email: String!
     username: String!
     phoneNumber: String!
+    ssn: String
     occupation: String
     address: String
     country: String

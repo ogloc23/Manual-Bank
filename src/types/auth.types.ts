@@ -19,6 +19,8 @@ export interface RegisterUserInput {
 
   accountTier: AccountTier;
 
+  ssn?: string;
+
   password: string;
   confirmPassword: string;
 

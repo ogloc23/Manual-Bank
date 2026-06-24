@@ -2,7 +2,7 @@ import ProfileRepository from "../repositories/profile.repository";
 
 import { compareHash, hashValue } from "../utils/auth";
 
-import { validatePassword, validatePin } from "../utils/validators";
+import { validatePassword, validatePin, validateSSN } from "../utils/validators";
 
 import {
   UpdateProfileInput,
@@ -29,11 +29,21 @@ export const updateProfile = async (
   userId: string,
   input: UpdateProfileInput,
 ) => {
+  const sanitizedInput: Partial<UpdateProfileInput> = { ...input };
+
+  if (input.ssn !== undefined) {
+    sanitizedInput.ssn = input.ssn?.trim();
+  }
+
+  if (sanitizedInput.ssn && !validateSSN(sanitizedInput.ssn)) {
+    throw new Error("SSN must be either 9 digits or formatted as XXX-XX-XXXX");
+  }
+
   const updatedUser = await profileRepository.update(
     {
       _id: userId,
     },
-    input,
+    sanitizedInput,
   );
 
   if (!updatedUser) {

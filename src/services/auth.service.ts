@@ -1,7 +1,7 @@
 import AuthRepository from "../repositories/auth.repository";
 import { generateToken, hashValue, compareHash } from "../utils/auth";
 import { generateAccountNumber } from "../utils/generateAccountNumber";
-import { validatePassword, validatePin } from "../utils/validators";
+import { validatePassword, validatePin, validateSSN } from "../utils/validators";
 import { RegisterUserInput, LoginUserInput } from "../types/auth.types";
 
 const authRepository = new AuthRepository();
@@ -18,6 +18,7 @@ export const registerUser = async (input: RegisterUserInput) => {
     stateProvince,
     currencyProtocol,
     accountTier,
+    ssn,
     password,
     confirmPassword,
     accessPin,
@@ -33,6 +34,10 @@ export const registerUser = async (input: RegisterUserInput) => {
 
   if (!validatePin(accessPin)) {
     throw new Error("PIN must be exactly 4 digits");
+  }
+
+  if (ssn && !validateSSN(ssn)) {
+    throw new Error("SSN must be either 9 digits or formatted as XXX-XX-XXXX");
   }
 
   const existingEmail = await authRepository.findOne({
@@ -69,6 +74,7 @@ export const registerUser = async (input: RegisterUserInput) => {
     password: hashedPassword,
     accessPin: hashedPin,
     accountNumber: generateAccountNumber(),
+    ssn: ssn?.trim() ?? "",
     role: "USER",
     permissions: [],
     isVerified: false,
