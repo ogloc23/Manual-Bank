@@ -4,6 +4,11 @@ import AuthRepository from "../repositories/auth.repository";
 import { createNotification } from "./notification.service";
 import { toObjectId } from "../utils/toObjectId";
 import { CreateWireTransferInput } from "../types/transaction.types";
+import {
+  AccountType,
+  accountTypeToField,
+  DEFAULT_ACCOUNT,
+} from "../utils/accountType";
 
 const userRepository = new AuthRepository();
 
@@ -29,8 +34,12 @@ export const createWireTransfer = async (
     throw new Error("User not found");
   }
 
-  if (user.secondaryBalance < input.amount) {
-    throw new Error("Insufficient secondary balance");
+  const accountType: AccountType =
+    (input.accountType as AccountType) || DEFAULT_ACCOUNT;
+  const accountField = accountTypeToField(accountType);
+
+  if ((user as any)[accountField] < input.amount) {
+    throw new Error("Insufficient balance for selected account");
   }
 
   const wireReference = generateWireReference();
@@ -45,6 +54,7 @@ export const createWireTransfer = async (
     fee: 0,
     reason: input.reason || "",
     reference: wireReference,
+    accountType,
     status: "PENDING",
   });
 
@@ -52,7 +62,7 @@ export const createWireTransfer = async (
     { _id: userId },
     {
       $inc: {
-        secondaryBalance: -input.amount,
+        [accountField]: -input.amount,
         tertiaryBalance: input.amount,
       },
     },
@@ -72,6 +82,7 @@ export const createWireTransfer = async (
     amount: input.amount,
     currency: "USD",
     reference: wireReference,
+    accountType,
     status: "PENDING",
     direction: "DEBIT",
     description: input.reason || "Wire transfer request",

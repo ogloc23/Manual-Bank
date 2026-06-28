@@ -90,6 +90,7 @@ export const transactionTypeDefs = `#graphql
     ): Transaction
 
     rejectTransaction(
+        accountType: String
       transactionId: String!
 
       remarks: String

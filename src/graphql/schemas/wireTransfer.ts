@@ -31,6 +31,7 @@ export const wireTransferTypeDefs = `#graphql
     swiftCode: String
     amount: Float!
     reason: String
+    accountType: String
   }
 
   type Query {

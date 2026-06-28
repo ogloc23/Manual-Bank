@@ -18,6 +18,12 @@ const CharitySchema = new mongoose.Schema(
       required: true,
     },
 
+    accountType: {
+      type: String,
+      enum: ["PRIMARY_ACCOUNT", "SECONDARY_ACCOUNT", "TERTIARY_ACCOUNT"],
+      default: "PRIMARY_ACCOUNT",
+    },
+
     message: {
       type: String,
       default: "",

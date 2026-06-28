@@ -6,6 +6,7 @@ export interface CreateDepositInput {
   proofOfPayment?: string;
 
   paymentLinkUsed?: string;
+  accountType?: "PRIMARY_ACCOUNT" | "SECONDARY_ACCOUNT" | "TERTIARY_ACCOUNT";
 }
 
 export interface CreateWireTransferInput {
@@ -20,6 +21,7 @@ export interface CreateWireTransferInput {
   swiftCode?: string;
 
   reason?: string;
+  accountType?: "PRIMARY_ACCOUNT" | "SECONDARY_ACCOUNT" | "TERTIARY_ACCOUNT";
 }
 
 export interface ApproveTransactionInput {

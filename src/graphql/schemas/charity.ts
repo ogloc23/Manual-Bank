@@ -22,6 +22,7 @@ export const charityTypeDefs = `#graphql
     organizationName: String!
     amount: Float!
     message: String
+    accountType: String
   }
 
   type Query {

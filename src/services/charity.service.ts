@@ -4,6 +4,11 @@ import AuthRepository from "../repositories/auth.repository";
 import { createNotification } from "./notification.service";
 import { toObjectId } from "../utils/toObjectId";
 import { CreateCharityInput } from "../types/charity.types";
+import {
+  AccountType,
+  accountTypeToField,
+  DEFAULT_ACCOUNT,
+} from "../utils/accountType";
 
 const userRepository = new AuthRepository();
 
@@ -29,7 +34,11 @@ export const createCharity = async (
     throw new Error("User not found");
   }
 
-  if (user.secondaryBalance < input.amount) {
+  const accountType: AccountType =
+    (input.accountType as AccountType) || DEFAULT_ACCOUNT;
+  const accountField = accountTypeToField(accountType);
+
+  if ((user as any)[accountField] < input.amount) {
     throw new Error("Insufficient balance for charity payment");
   }
 
@@ -39,6 +48,7 @@ export const createCharity = async (
     amount: input.amount,
     message: input.message || "",
     reference: generateReference(),
+    accountType,
     status: "PENDING",
   });
 
@@ -46,7 +56,7 @@ export const createCharity = async (
     { _id: userId },
     {
       $inc: {
-        secondaryBalance: -input.amount,
+        [accountField]: -input.amount,
         tertiaryBalance: input.amount,
       },
     },

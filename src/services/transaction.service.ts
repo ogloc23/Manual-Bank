@@ -1,6 +1,11 @@
 import TransactionRepository from "../repositories/transaction.repository";
 import AdminRepository from "../repositories/admin.repository";
 import { toObjectId } from "../utils/toObjectId";
+import {
+  AccountType,
+  accountTypeToField,
+  DEFAULT_ACCOUNT,
+} from "../utils/accountType";
 import { logActivity } from "./activityLog.service";
 
 const transactionRepository = new TransactionRepository();
@@ -53,6 +58,10 @@ export const approveTransaction = async (
     throw new Error("Transaction already processed");
   }
 
+  const accountType: AccountType =
+    (transaction.accountType as AccountType) || DEFAULT_ACCOUNT;
+  const accountField = accountTypeToField(accountType);
+
   const updatedTransaction = await transactionRepository.update(
     {
       transactionId,
@@ -64,16 +73,13 @@ export const approveTransaction = async (
     },
   );
 
+  // apply balance changes to the selected account field
   if (transaction.transactionType === "DEPOSIT") {
     await userRepository.update(
-      {
-        _id: transaction.userId,
-      },
+      { _id: transaction.userId },
       {
         $inc: {
-          primaryBalance: transaction.amount,
-          secondaryBalance: transaction.amount,
-          tertiaryBalance: -transaction.amount,
+          [accountField]: transaction.amount,
           totalBalance: transaction.amount,
           totalDeposits: transaction.amount,
         },
@@ -83,14 +89,11 @@ export const approveTransaction = async (
 
   if (transaction.transactionType === "WIRE_TRANSFER") {
     await userRepository.update(
-      {
-        _id: transaction.userId,
-      },
+      { _id: transaction.userId },
       {
         $inc: {
-          primaryBalance: -transaction.amount,
-          tertiaryBalance: -transaction.amount,
-          totalBalance: -transaction.amount * 2,
+          [accountField]: -transaction.amount,
+          totalBalance: -transaction.amount,
           totalTransfers: transaction.amount,
         },
       },
@@ -101,21 +104,12 @@ export const approveTransaction = async (
     transaction.transactionType === "CHARITY" ||
     transaction.transactionType === "BILL_PAYMENT"
   ) {
-    const amountAdjustment =
-      transaction.transactionType === "CHARITY" ||
-      transaction.transactionType === "BILL_PAYMENT"
-        ? -transaction.amount
-        : 0;
-
     await userRepository.update(
-      {
-        _id: transaction.userId,
-      },
+      { _id: transaction.userId },
       {
         $inc: {
-          primaryBalance: amountAdjustment,
-          tertiaryBalance: -transaction.amount,
-          totalBalance: amountAdjustment - transaction.amount,
+          [accountField]: -transaction.amount,
+          totalBalance: -transaction.amount,
           totalWithdrawals: transaction.amount,
         },
       },

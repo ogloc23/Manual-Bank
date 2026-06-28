@@ -22,6 +22,7 @@ export const depositTypeDefs = `#graphql
     amount: Float!
     paymentMethod: String
     proofOfPayment: String
+    accountType: String
   }
 
   type Query {

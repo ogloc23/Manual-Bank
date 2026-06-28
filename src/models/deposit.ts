@@ -13,6 +13,12 @@ const DepositSchema = new mongoose.Schema(
       required: true,
     },
 
+    accountType: {
+      type: String,
+      enum: ["PRIMARY_ACCOUNT", "SECONDARY_ACCOUNT", "TERTIARY_ACCOUNT"],
+      default: "PRIMARY_ACCOUNT",
+    },
+
     paymentMethod: {
       type: String,
       default: "BANK_TRANSFER",
@@ -30,12 +36,7 @@ const DepositSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: [
-        "PENDING",
-        "PROCESSING",
-        "APPROVED",
-        "DECLINED",
-      ],
+      enum: ["PENDING", "PROCESSING", "APPROVED", "DECLINED"],
       default: "PENDING",
     },
 

@@ -32,6 +32,12 @@ const WireTransferSchema = new mongoose.Schema(
       required: true,
     },
 
+    accountType: {
+      type: String,
+      enum: ["PRIMARY_ACCOUNT", "SECONDARY_ACCOUNT", "TERTIARY_ACCOUNT"],
+      default: "PRIMARY_ACCOUNT",
+    },
+
     fee: {
       type: Number,
       default: 0,

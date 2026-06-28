@@ -23,6 +23,12 @@ const BillPaymentSchema = new mongoose.Schema(
       required: true,
     },
 
+    accountType: {
+      type: String,
+      enum: ["PRIMARY_ACCOUNT", "SECONDARY_ACCOUNT", "TERTIARY_ACCOUNT"],
+      default: "PRIMARY_ACCOUNT",
+    },
+
     reference: {
       type: String,
       unique: true,

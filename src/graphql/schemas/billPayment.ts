@@ -21,6 +21,7 @@ export const billPaymentTypeDefs = `#graphql
     billType: String!
     provider: String!
     amount: Float!
+    accountType: String
   }
 
   type Query {
