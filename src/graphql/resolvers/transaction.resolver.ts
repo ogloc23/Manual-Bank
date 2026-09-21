@@ -51,12 +51,17 @@ export const transactionResolvers = {
       _: unknown,
       args: {
         transactionId: string;
+        accountType?: string;
       },
       context: GraphQLContext,
     ) => {
       const admin = requireAdmin(context);
 
-      return approveTransaction(args.transactionId, admin.id);
+      return approveTransaction(
+        args.transactionId,
+        admin.id,
+        args.accountType as any,
+      );
     },
 
     rejectTransaction: async (

@@ -12,12 +12,60 @@ const transactionRepository = new TransactionRepository();
 
 const userRepository = new AdminRepository();
 
-const generateTransactionId = (): string => {
-  return `TNX-${Date.now()}`;
+const getTargetAccountType = (
+  transaction: { accountType?: string },
+  override?: string,
+): AccountType => {
+  const requestedType = (override ??
+    transaction.accountType ??
+    DEFAULT_ACCOUNT) as AccountType;
+
+  return ["PRIMARY_ACCOUNT", "SECONDARY_ACCOUNT", "TERTIARY_ACCOUNT"].includes(
+    requestedType,
+  )
+    ? requestedType
+    : DEFAULT_ACCOUNT;
 };
 
-const generateReference = (): string => {
-  return `REF-${Date.now()}`;
+const applyTransactionBalance = async (
+  userId: string | { toString(): string },
+  accountType: AccountType,
+  transactionType: string,
+  amount: number,
+) => {
+  const accountField = accountTypeToField(accountType);
+  const amountDelta =
+    transactionType === "DEPOSIT" || transactionType === "ADMIN_CREDIT"
+      ? amount
+      : -amount;
+
+  const balanceUpdate: Record<string, number> = {
+    [accountField]: amountDelta,
+    totalBalance: amountDelta,
+  };
+
+  if (transactionType === "DEPOSIT") {
+    balanceUpdate.totalDeposits = amount;
+  }
+
+  if (transactionType === "WIRE_TRANSFER") {
+    balanceUpdate.totalTransfers = amount;
+  }
+
+  if (
+    transactionType === "CHARITY" ||
+    transactionType === "BILL_PAYMENT" ||
+    transactionType === "WITHDRAWAL"
+  ) {
+    balanceUpdate.totalWithdrawals = amount;
+  }
+
+  await userRepository.update(
+    { _id: toObjectId(String(userId)) },
+    {
+      $inc: balanceUpdate,
+    },
+  );
 };
 
 export const getTransactions = async () => {
@@ -45,7 +93,17 @@ export const getTransaction = async (transactionId: string) => {
 export const approveTransaction = async (
   transactionId: string,
   adminId: string,
+  accountTypeOverride?: AccountType,
 ) => {
+  const admin = await userRepository.findOne({
+    _id: adminId,
+    role: { $in: ["ADMIN", "SUPER_ADMIN"] },
+  });
+
+  if (!admin) {
+    throw new Error("Forbidden: only admins can approve transactions");
+  }
+
   const transaction = await transactionRepository.findOne({
     transactionId,
   });
@@ -58,61 +116,35 @@ export const approveTransaction = async (
     throw new Error("Transaction already processed");
   }
 
-  const accountType: AccountType =
-    (transaction.accountType as AccountType) || DEFAULT_ACCOUNT;
-  const accountField = accountTypeToField(accountType);
-
+  const accountType = getTargetAccountType(transaction, accountTypeOverride);
   const updatedTransaction = await transactionRepository.update(
     {
       transactionId,
     },
     {
       status: "COMPLETED",
+      accountType,
       processedBy: toObjectId(adminId),
       processedAt: new Date(),
     },
   );
 
-  // apply balance changes to the selected account field
-  if (transaction.transactionType === "DEPOSIT") {
-    await userRepository.update(
-      { _id: transaction.userId },
-      {
-        $inc: {
-          [accountField]: transaction.amount,
-          totalBalance: transaction.amount,
-          totalDeposits: transaction.amount,
-        },
-      },
-    );
-  }
-
-  if (transaction.transactionType === "WIRE_TRANSFER") {
-    await userRepository.update(
-      { _id: transaction.userId },
-      {
-        $inc: {
-          [accountField]: -transaction.amount,
-          totalBalance: -transaction.amount,
-          totalTransfers: transaction.amount,
-        },
-      },
-    );
-  }
-
   if (
-    transaction.transactionType === "CHARITY" ||
-    transaction.transactionType === "BILL_PAYMENT"
+    [
+      "DEPOSIT",
+      "WIRE_TRANSFER",
+      "CHARITY",
+      "BILL_PAYMENT",
+      "WITHDRAWAL",
+      "ADMIN_CREDIT",
+      "ADMIN_DEBIT",
+    ].includes(transaction.transactionType)
   ) {
-    await userRepository.update(
-      { _id: transaction.userId },
-      {
-        $inc: {
-          [accountField]: -transaction.amount,
-          totalBalance: -transaction.amount,
-          totalWithdrawals: transaction.amount,
-        },
-      },
+    await applyTransactionBalance(
+      transaction.userId,
+      accountType,
+      transaction.transactionType,
+      transaction.amount,
     );
   }
 
@@ -120,7 +152,7 @@ export const approveTransaction = async (
     adminId,
     `Approved transaction ${transaction.transactionId}`,
     `status=PENDING`,
-    `status=COMPLETED`,
+    `status=COMPLETED, accountType=${accountType}`,
   );
 
   return updatedTransaction;
@@ -131,6 +163,15 @@ export const rejectTransaction = async (
   remarks: string | undefined,
   adminId: string,
 ) => {
+  const admin = await userRepository.findOne({
+    _id: adminId,
+    role: { $in: ["ADMIN", "SUPER_ADMIN"] },
+  });
+
+  if (!admin) {
+    throw new Error("Forbidden: only admins can reject transactions");
+  }
+
   const transaction = await transactionRepository.findOne({
     transactionId,
   });
@@ -146,6 +187,8 @@ export const rejectTransaction = async (
     {
       status: "REJECTED",
       remarks,
+      processedBy: toObjectId(adminId),
+      processedAt: new Date(),
     },
   );
 

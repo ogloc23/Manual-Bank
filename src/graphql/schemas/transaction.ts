@@ -84,15 +84,20 @@ export const transactionTypeDefs = `#graphql
     ): Transaction
   }
 
+  enum AccountType {
+    PRIMARY_ACCOUNT
+    SECONDARY_ACCOUNT
+    TERTIARY_ACCOUNT
+  }
+
   extend type Mutation {
     approveTransaction(
       transactionId: String!
+      accountType: AccountType
     ): Transaction
 
     rejectTransaction(
-        accountType: String
       transactionId: String!
-
       remarks: String
     ): Transaction
   }

@@ -26,6 +26,7 @@ export interface CreateWireTransferInput {
 
 export interface ApproveTransactionInput {
   transactionId: string;
+  accountType?: "PRIMARY_ACCOUNT" | "SECONDARY_ACCOUNT" | "TERTIARY_ACCOUNT";
 }
 
 export interface RejectTransactionInput {
